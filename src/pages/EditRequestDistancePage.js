@@ -15,6 +15,8 @@ import * as IOU from '@userActions/IOU';
 import CONST from '@src/CONST';
 import ONYXKEYS from '@src/ONYXKEYS';
 import reportPropTypes from './reportPropTypes';
+import * as TransactionUtils from '@libs/TransactionUtils'; 
+import * as NumberUtils from '@libs/NumberUtils';
 
 const propTypes = {
     /** The transactionID we're currently editing */
@@ -39,16 +41,13 @@ const propTypes = {
     /** The original transaction that is being edited */
     transaction: transactionPropTypes,
 
-    /** backup version of the original transaction  */
-    transactionBackup: transactionPropTypes,
 };
 
 const defaultProps = {
     transaction: {},
-    transactionBackup: {},
 };
 
-function EditRequestDistancePage({report, route, transaction, transactionBackup}) {
+function EditRequestDistancePage({report, route, transaction}) {
     const {isOffline} = useNetwork();
     const {translate} = useLocalize();
     const hasWaypointError = useRef(false);
@@ -70,8 +69,8 @@ function EditRequestDistancePage({report, route, transaction, transactionBackup}
      */
     const saveTransaction = (waypoints) => {
         // If nothing was changed, simply go to transaction thread
-        // We compare only addresses because numbers are rounded while backup
-        const oldWaypoints = lodashGet(transactionBackup, 'comment.waypoints', {});
+        // We compare only addresses in case numbers are rounded
+        const oldWaypoints = lodashGet(transaction, 'comment.waypoints', {});
         const oldAddresses = _.mapObject(oldWaypoints, (waypoint) => _.pick(waypoint, 'address'));
         const addresses = _.mapObject(waypoints, (waypoint) => _.pick(waypoint, 'address'));
         if (_.isEqual(oldAddresses, addresses)) {
@@ -88,6 +87,19 @@ function EditRequestDistancePage({report, route, transaction, transactionBackup}
         }
     };
 
+    const tempTransactionID = NumberUtils.rand64();
+    useEffect(() => {
+      const waypoints = TransactionUtils.getWaypoints(transaction);
+      const tempTransaction = { 
+        transactionID: tempTransactionID,
+        comment: (waypoints) ? {waypoints} : null, 
+      };
+      Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${tempTransactionID}`, tempTransaction);
+      return () => {
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${tempTransactionID}`, null);
+      };
+    }, [transaction]);
+
     return (
         <ScreenWrapper
             includeSafeAreaPaddingBottom={false}
@@ -101,7 +113,7 @@ function EditRequestDistancePage({report, route, transaction, transactionBackup}
             <DistanceRequest
                 report={report}
                 route={route}
-                transactionID={transaction.transactionID}
+                transactionID={tempTransactionID}
                 onSubmit={saveTransaction}
                 isEditingRequest
             />
@@ -115,8 +127,5 @@ EditRequestDistancePage.displayName = 'EditRequestDistancePage';
 export default withOnyx({
     transaction: {
         key: (props) => `${ONYXKEYS.COLLECTION.TRANSACTION}${props.transactionID}`,
-    },
-    transactionBackup: {
-        key: (props) => `${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${props.transactionID}`,
     },
 })(EditRequestDistancePage);

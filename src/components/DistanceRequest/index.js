@@ -70,6 +70,7 @@ const defaultProps = {
 };
 
 function DistanceRequest({transactionID, report, transaction, route, isEditingRequest, isEditingNewRequest, onSubmit}) {
+  console.log('Here is DistanceRequest');
     const styles = useThemeStyles();
     const {isOffline} = useNetwork();
     const {translate} = useLocalize();
@@ -95,12 +96,14 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
     const isRouteAbsentWithoutErrors = !hasRoute && !hasRouteError;
     const shouldFetchRoute = (isRouteAbsentWithoutErrors || haveValidatedWaypointsChanged) && !isLoadingRoute && _.size(validatedWaypoints) > 1;
     const transactionWasSaved = useRef(false);
+    const [saveButtonPressed, setSaveButtonPressed] = useState(false);
 
     useEffect(() => {
         MapboxToken.init();
         return MapboxToken.stop;
     }, []);
 
+/*
     useEffect(() => {
         if (!isEditingNewRequest && !isEditingRequest) {
             return () => {};
@@ -123,7 +126,7 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
+*/
     useEffect(() => {
         const transactionWaypoints = lodashGet(transaction, 'comment.waypoints', {});
         if (!lodashGet(transaction, 'transactionID') || !_.isEmpty(transactionWaypoints)) {
@@ -139,7 +142,7 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
     }, [transaction, transactionID]);
 
     useEffect(() => {
-        if (isOffline || !shouldFetchRoute) {
+        if (isOffline || !shouldFetchRoute || saveButtonPressed) {
             return;
         }
 
@@ -206,6 +209,8 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
 
     const submitWaypoints = useCallback(() => {
         // If there is any error or loading state, don't let user go to next page.
+        setSaveButtonPressed(true);
+
         if (_.size(validatedWaypoints) < 2 || hasRouteError || isLoadingRoute || (isLoading && !isOffline)) {
             setHasError(true);
             return;
@@ -265,7 +270,7 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
                     style={[styles.w100, styles.mb4, styles.ph4, styles.flexShrink0]}
                     onPress={submitWaypoints}
                     text={translate(isEditingRequest ? 'common.save' : 'common.next')}
-                    isLoading={!isOffline && (isLoadingRoute || shouldFetchRoute || isLoading)}
+                    isLoading={!isOffline && (isLoadingRoute || shouldFetchRoute || isLoading || saveButtonPressed)}
                 />
             </View>
         </>
