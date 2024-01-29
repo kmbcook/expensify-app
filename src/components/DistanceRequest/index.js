@@ -103,30 +103,6 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
         return MapboxToken.stop;
     }, []);
 
-/*
-    useEffect(() => {
-        if (!isEditingNewRequest && !isEditingRequest) {
-            return () => {};
-        }
-        // This effect runs when the component is mounted and unmounted. It's purpose is to be able to properly
-        // discard changes if the user cancels out of making any changes. This is accomplished by backing up the
-        // original transaction, letting the user modify the current transaction, and then if the user ever
-        // cancels out of the modal without saving changes, the original transaction is restored from the backup.
-
-        // On mount, create the backup transaction.
-        TransactionEdit.createBackupTransaction(transaction);
-
-        return () => {
-            // If the user cancels out of the modal without without saving changes, then the original transaction
-            // needs to be restored from the backup so that all changes are removed.
-            if (transactionWasSaved.current) {
-                return;
-            }
-            TransactionEdit.restoreOriginalTransactionFromBackup(transaction.transactionID);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-*/
     useEffect(() => {
         const transactionWaypoints = lodashGet(transaction, 'comment.waypoints', {});
         if (!lodashGet(transaction, 'transactionID') || !_.isEmpty(transactionWaypoints)) {
