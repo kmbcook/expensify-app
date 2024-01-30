@@ -87,7 +87,8 @@ function EditRequestDistancePage({report, route, transaction}) {
         }
     };
 
-    const tempTransactionID = NumberUtils.rand64();
+    //const tempTransactionID = NumberUtils.rand64();
+    const tempTransactionID = 1;
     useEffect(() => {
       const waypoints = TransactionUtils.getWaypoints(transaction);
       const tempTransaction = { 

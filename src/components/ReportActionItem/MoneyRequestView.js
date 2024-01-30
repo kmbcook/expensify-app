@@ -232,6 +232,7 @@ function MoneyRequestView({report, parentReport, parentReportActions, policyCate
         <View style={[StyleUtils.getReportWelcomeContainerStyle(isSmallScreenWidth)]}>
             <AnimatedEmptyStateBackground />
             <View style={[StyleUtils.getReportWelcomeTopMarginStyle(isSmallScreenWidth)]}>
+      {transaction.transactionID}
                 {hasReceipt && (
                     <OfflineWithFeedback pendingAction={pendingAction}>
                         <View style={styles.moneyRequestViewImage}>

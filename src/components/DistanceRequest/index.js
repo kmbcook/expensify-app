@@ -119,7 +119,7 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
     }, [transaction, transactionID]);
 
     useEffect(() => {
-        if (isOffline || !shouldFetchRoute || saveButtonPressed) {
+        if (isOffline || !shouldFetchRoute) {
             return;
         }
 
@@ -249,7 +249,7 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
                     style={[styles.w100, styles.mb4, styles.ph4, styles.flexShrink0]}
                     onPress={submitWaypoints}
                     text={translate(isEditingRequest ? 'common.save' : 'common.next')}
-                    isLoading={!isOffline && (isLoadingRoute || shouldFetchRoute || isLoading || saveButtonPressed)}
+                    isLoading={!isOffline && (isLoadingRoute || shouldFetchRoute || isLoading)}
                 />
             </View>
         </>
