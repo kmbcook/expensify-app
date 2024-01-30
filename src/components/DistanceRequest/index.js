@@ -97,7 +97,6 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
     const isRouteAbsentWithoutErrors = !hasRoute && !hasRouteError;
     const shouldFetchRoute = (isRouteAbsentWithoutErrors || haveValidatedWaypointsChanged) && !isLoadingRoute && _.size(validatedWaypoints) > 1;
     const transactionWasSaved = useRef(false);
-    const [saveButtonPressed, setSaveButtonPressed] = useState(false);
 
     useEffect(() => {
         MapboxToken.init();
@@ -196,8 +195,6 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
         if (isEditingNewRequest || isEditingRequest) {
             transactionWasSaved.current = true;
         }
-
-        setSaveButtonPressed(true);
 
         onSubmit(waypoints);
     }, [onSubmit, setHasError, hasRouteError, isLoadingRoute, isLoading, validatedWaypoints, waypoints, isEditingNewRequest, isEditingRequest, isOffline]);

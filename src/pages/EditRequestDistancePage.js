@@ -50,30 +50,49 @@ const defaultProps = {
 function EditRequestDistancePage({report, route, transaction}) {
     const {isOffline} = useNetwork();
     const {translate} = useLocalize();
+
+    const tempTransactionID = 1;
+    const tempTransaction = { 
+        ...transaction,
+        transactionID: tempTransactionID,
+    };
+    Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${tempTransactionID}`, tempTransaction);
+
+    const deleteTempTransaction = () => {
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${tempTransactionID}`, null);
+    };
+
+    const saveTransaction = () => {
+        const newTransaction = {
+            ...tempTransaction,
+            transactionID: transaction.transactionID,
+        };
+        deleteTempTransaction();
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${transaction.transactionID}`, newTransaction);
+    };
+
     const hasWaypointError = useRef(false);
-    const prevIsLoading = usePrevious(transaction.isLoading);
+    const prevIsLoading = usePrevious(tempTransaction.isLoading);
 
     useEffect(() => {
-        hasWaypointError.current = Boolean(lodashGet(transaction, 'errorFields.route') || lodashGet(transaction, 'errorFields.waypoints'));
+        hasWaypointError.current = Boolean(lodashGet(tempTransaction, 'errorFields.route') || lodashGet(transaction, 'errorFields.waypoints'));
 
         // When the loading goes from true to false, then we know the transaction has just been
         // saved to the server. Check for errors. If there are no errors, then the modal can be closed.
-        if (prevIsLoading && !transaction.isLoading && !hasWaypointError.current) {
+        if (prevIsLoading && !tempTransaction.isLoading && !hasWaypointError.current) {
+            saveTransaction();
             Navigation.dismissModal(report.reportID);
         }
-    }, [transaction, prevIsLoading, report]);
+    }, [tempTransaction, prevIsLoading, report]);
 
-    /**
-     * Save the changes to the original transaction object
-     * @param {Object} waypoints
-     */
-    const saveTransaction = (waypoints) => {
+    const updateTransaction = (waypoints) => {
         // If nothing was changed, simply go to transaction thread
         // We compare only addresses in case numbers are rounded
         const oldWaypoints = lodashGet(transaction, 'comment.waypoints', {});
         const oldAddresses = _.mapObject(oldWaypoints, (waypoint) => _.pick(waypoint, 'address'));
         const addresses = _.mapObject(waypoints, (waypoint) => _.pick(waypoint, 'address'));
         if (_.isEqual(oldAddresses, addresses)) {
+            deleteTempTransaction();
             Navigation.dismissModal(report.reportID);
             return;
         }
@@ -83,23 +102,10 @@ function EditRequestDistancePage({report, route, transaction}) {
         // If the client is offline, then the modal can be closed as well (because there are no errors or other feedback to show them
         // until they come online again and sync with the server).
         if (isOffline) {
+            saveTransaction();
             Navigation.dismissModal(report.reportID);
         }
     };
-
-    //const tempTransactionID = NumberUtils.rand64();
-    const tempTransactionID = 1;
-    useEffect(() => {
-      const waypoints = TransactionUtils.getWaypoints(transaction);
-      const tempTransaction = { 
-        transactionID: tempTransactionID,
-        comment: (waypoints) ? {waypoints} : null, 
-      };
-      Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${tempTransactionID}`, tempTransaction);
-      return () => {
-        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${tempTransactionID}`, null);
-      };
-    }, [transaction]);
 
     return (
         <ScreenWrapper
@@ -115,7 +121,7 @@ function EditRequestDistancePage({report, route, transaction}) {
                 report={report}
                 route={route}
                 transactionID={tempTransactionID}
-                onSubmit={saveTransaction}
+                onSubmit={updateTransaction}
                 isEditingRequest
             />
         </ScreenWrapper>
