@@ -15,8 +15,6 @@ import * as IOU from '@userActions/IOU';
 import CONST from '@src/CONST';
 import ONYXKEYS from '@src/ONYXKEYS';
 import reportPropTypes from './reportPropTypes';
-import * as TransactionUtils from '@libs/TransactionUtils'; 
-import * as NumberUtils from '@libs/NumberUtils';
 
 const propTypes = {
     /** The transactionID we're currently editing */
@@ -38,52 +36,43 @@ const propTypes = {
     }).isRequired,
 
     /* Onyx props */
-    /** The original transaction that is being edited */
     transaction: transactionPropTypes,
 
 };
 
 const defaultProps = {
     transaction: {},
+    draftTransaction: {},
 };
 
-function EditRequestDistancePage({report, route, transaction}) {
+function EditRequestDistancePage({report, route, transaction, draftTransaction}) {
     const {isOffline} = useNetwork();
     const {translate} = useLocalize();
+    const transactionID = transaction.transactionID;
+    Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transactionID}`, transaction);
 
-    const tempTransactionID = 1;
-    const tempTransaction = { 
-        ...transaction,
-        transactionID: tempTransactionID,
-    };
-    Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${tempTransactionID}`, tempTransaction);
-
-    const deleteTempTransaction = () => {
-        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${tempTransactionID}`, null);
+    const deleteDraftTransaction = () => {
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transactionID}`, null);
     };
 
     const saveTransaction = () => {
-        const newTransaction = {
-            ...tempTransaction,
-            transactionID: transaction.transactionID,
-        };
-        deleteTempTransaction();
-        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${transaction.transactionID}`, newTransaction);
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${transactionID}`, draftTransaction);
     };
 
     const hasWaypointError = useRef(false);
-    const prevIsLoading = usePrevious(tempTransaction.isLoading);
+    const prevIsLoading = usePrevious(draftTransaction.isLoading);
 
     useEffect(() => {
-        hasWaypointError.current = Boolean(lodashGet(tempTransaction, 'errorFields.route') || lodashGet(transaction, 'errorFields.waypoints'));
+        hasWaypointError.current = Boolean(lodashGet(draftTransaction, 'errorFields.route') || lodashGet(transaction, 'errorFields.waypoints'));
 
         // When the loading goes from true to false, then we know the transaction has just been
         // saved to the server. Check for errors. If there are no errors, then the modal can be closed.
-        if (prevIsLoading && !tempTransaction.isLoading && !hasWaypointError.current) {
+        if (prevIsLoading && !draftTransaction.isLoading && !hasWaypointError.current) {
             saveTransaction();
+            deleteDraftTransaction();
             Navigation.dismissModal(report.reportID);
         }
-    }, [tempTransaction, prevIsLoading, report]);
+    }, [draftTransaction, prevIsLoading, report]);
 
     const updateTransaction = (waypoints) => {
         // If nothing was changed, simply go to transaction thread
@@ -92,7 +81,7 @@ function EditRequestDistancePage({report, route, transaction}) {
         const oldAddresses = _.mapObject(oldWaypoints, (waypoint) => _.pick(waypoint, 'address'));
         const addresses = _.mapObject(waypoints, (waypoint) => _.pick(waypoint, 'address'));
         if (_.isEqual(oldAddresses, addresses)) {
-            deleteTempTransaction();
+            deleteDraftTransaction();
             Navigation.dismissModal(report.reportID);
             return;
         }
@@ -103,6 +92,7 @@ function EditRequestDistancePage({report, route, transaction}) {
         // until they come online again and sync with the server).
         if (isOffline) {
             saveTransaction();
+            deleteDraftTransaction();
             Navigation.dismissModal(report.reportID);
         }
     };
@@ -120,7 +110,7 @@ function EditRequestDistancePage({report, route, transaction}) {
             <DistanceRequest
                 report={report}
                 route={route}
-                transactionID={tempTransactionID}
+                transactionID={transactionID}
                 onSubmit={updateTransaction}
                 isEditingRequest
             />
@@ -134,5 +124,8 @@ EditRequestDistancePage.displayName = 'EditRequestDistancePage';
 export default withOnyx({
     transaction: {
         key: (props) => `${ONYXKEYS.COLLECTION.TRANSACTION}${props.transactionID}`,
+    },
+    draftTransaction: {
+        key: (props) => `${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${props.transactionID}`,
     },
 })(EditRequestDistancePage);

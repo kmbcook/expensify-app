@@ -71,7 +71,6 @@ const defaultProps = {
 };
 
 function DistanceRequest({transactionID, report, transaction, route, isEditingRequest, isEditingNewRequest, onSubmit}) {
-  console.log('Here is DistanceRequest');
     const styles = useThemeStyles();
     const {isOffline} = useNetwork();
     const {translate} = useLocalize();
@@ -282,6 +281,6 @@ DistanceRequest.propTypes = propTypes;
 DistanceRequest.defaultProps = defaultProps;
 export default withOnyx({
     transaction: {
-        key: ({transactionID}) => `${ONYXKEYS.COLLECTION.TRANSACTION}${transactionID || 0}`,
+        key: ({transactionID}) => `${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transactionID || 0}`,
     },
 })(DistanceRequest);

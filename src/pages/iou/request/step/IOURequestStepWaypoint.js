@@ -135,7 +135,7 @@ function IOURequestStepWaypoint({
         return errors;
     };
 
-    const saveWaypoint = (waypoint) => Transaction.saveWaypoint(transactionID, pageIndex, waypoint, action === CONST.IOU.ACTION.CREATE);
+    const saveWaypoint = (waypoint) => Transaction.saveWaypoint(transactionID, pageIndex, waypoint, true);
 
     const submit = (values) => {
         const waypointValue = values[`waypoint${pageIndex}`] || '';
@@ -180,7 +180,7 @@ function IOURequestStepWaypoint({
             address: values.address,
             name: values.name || null,
         };
-        Transaction.saveWaypoint(transactionID, pageIndex, waypoint, action === CONST.IOU.ACTION.CREATE);
+        Transaction.saveWaypoint(transactionID, pageIndex, waypoint, true);
         if (backTo) {
             Navigation.goBack(backTo);
             return;
