@@ -101,7 +101,7 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
         MapboxToken.init();
         return MapboxToken.stop;
     }, []);
-
+/*
     useEffect(() => {
         const transactionWaypoints = lodashGet(transaction, 'comment.waypoints', {});
         if (!lodashGet(transaction, 'transactionID') || !_.isEmpty(transactionWaypoints)) {
@@ -115,7 +115,7 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
             setHasError(false);
         };
     }, [transaction, transactionID]);
-
+*/
     useEffect(() => {
         if (isOffline || !shouldFetchRoute) {
             return;
@@ -177,7 +177,7 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
 
             setOptimisticWaypoints(newWaypoints);
             // eslint-disable-next-line rulesdir/no-thenable-actions-in-views
-            Transaction.updateWaypoints(transactionID, newWaypoints).then(() => {
+            Transaction.updateWaypoints(transactionID, newWaypoints, true).then(() => {
                 setOptimisticWaypoints(null);
             });
         },
