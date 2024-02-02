@@ -230,7 +230,7 @@ function MoneyRequestView({report, parentReport, parentReportActions, policyCate
     const getPendingFieldAction = (fieldPath) => lodashGet(transaction, fieldPath) || pendingAction;
 
     const setDraftTransaction = () => {
-        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transaction.TransactionID}`, transaction);
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transaction.transactionID}`, transaction);
     };
 
     const editWaypoints = () => {
@@ -242,7 +242,6 @@ function MoneyRequestView({report, parentReport, parentReportActions, policyCate
         <View style={[StyleUtils.getReportWelcomeContainerStyle(isSmallScreenWidth)]}>
             <AnimatedEmptyStateBackground />
             <View style={[StyleUtils.getReportWelcomeTopMarginStyle(isSmallScreenWidth)]}>
-      {transaction.transactionID}
                 {hasReceipt && (
                     <OfflineWithFeedback
                         pendingAction={pendingAction}

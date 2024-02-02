@@ -101,27 +101,13 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
         MapboxToken.init();
         return MapboxToken.stop;
     }, []);
-/*
-    useEffect(() => {
-        const transactionWaypoints = lodashGet(transaction, 'comment.waypoints', {});
-        if (!lodashGet(transaction, 'transactionID') || !_.isEmpty(transactionWaypoints)) {
-            return;
-        }
 
-        // Create the initial start and stop waypoints
-        Transaction.createInitialWaypoints(transactionID);
-        return () => {
-            // Whenever we reset the transaction, we need to set errors as empty/false.
-            setHasError(false);
-        };
-    }, [transaction, transactionID]);
-*/
     useEffect(() => {
         if (isOffline || !shouldFetchRoute) {
             return;
         }
 
-        Transaction.getRoute(transactionID, validatedWaypoints);
+        Transaction.getRouteForDraft(transactionID, validatedWaypoints);
     }, [shouldFetchRoute, transactionID, validatedWaypoints, isOffline]);
 
     useEffect(() => {

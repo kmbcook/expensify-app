@@ -42,38 +42,31 @@ const propTypes = {
 
 const defaultProps = {
     transaction: {},
-    draftTransaction: {},
 };
 
-function EditRequestDistancePage({report, route, transaction, draftTransaction}) {
+function EditRequestDistancePage({report, route, transaction}) {
     const {isOffline} = useNetwork();
     const {translate} = useLocalize();
-    const transactionID = transaction.transactionID;
 
     const deleteDraftTransaction = () => {
-        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transactionID}`, null);
-    };
-
-    const saveTransaction = () => {
-        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${transactionID}`, draftTransaction);
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transaction.transactionID}`, null);
     };
 
     const hasWaypointError = useRef(false);
-    const prevIsLoading = usePrevious(draftTransaction.isLoading);
+    const prevIsLoading = usePrevious(transaction.isLoading);
 
     useEffect(() => {
-        hasWaypointError.current = Boolean(lodashGet(draftTransaction, 'errorFields.route') || lodashGet(transaction, 'errorFields.waypoints'));
+        hasWaypointError.current = Boolean(lodashGet(transaction, 'errorFields.route') || lodashGet(transaction, 'errorFields.waypoints'));
 
         // When the loading goes from true to false, then we know the transaction has just been
         // saved to the server. Check for errors. If there are no errors, then the modal can be closed.
-        if (prevIsLoading && !draftTransaction.isLoading && !hasWaypointError.current) {
-            saveTransaction();
+        if (prevIsLoading && !transaction.isLoading && !hasWaypointError.current) {
             deleteDraftTransaction();
             Navigation.dismissModal(report.reportID);
         }
-    }, [draftTransaction, prevIsLoading, report]);
+    }, [transaction, prevIsLoading, report]);
 
-    const updateTransaction = (waypoints) => {
+    const saveTransaction = (waypoints) => {
         // If nothing was changed, simply go to transaction thread
         // We compare only addresses in case numbers are rounded
         const oldWaypoints = lodashGet(transaction, 'comment.waypoints', {});
@@ -90,7 +83,6 @@ function EditRequestDistancePage({report, route, transaction, draftTransaction})
         // If the client is offline, then the modal can be closed as well (because there are no errors or other feedback to show them
         // until they come online again and sync with the server).
         if (isOffline) {
-            saveTransaction();
             deleteDraftTransaction();
             Navigation.dismissModal(report.reportID);
         }
@@ -109,8 +101,8 @@ function EditRequestDistancePage({report, route, transaction, draftTransaction})
             <DistanceRequest
                 report={report}
                 route={route}
-                transactionID={transactionID}
-                onSubmit={updateTransaction}
+                transactionID={transaction.transactionID}
+                onSubmit={saveTransaction}
                 isEditingRequest
             />
         </ScreenWrapper>
@@ -123,8 +115,5 @@ EditRequestDistancePage.displayName = 'EditRequestDistancePage';
 export default withOnyx({
     transaction: {
         key: (props) => `${ONYXKEYS.COLLECTION.TRANSACTION}${props.transactionID}`,
-    },
-    draftTransaction: {
-        key: (props) => `${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${props.transactionID}`,
     },
 })(EditRequestDistancePage);
