@@ -49,7 +49,6 @@ function EditRequestDistancePage({report, route, transaction, draftTransaction})
     const {isOffline} = useNetwork();
     const {translate} = useLocalize();
     const transactionID = transaction.transactionID;
-    Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transactionID}`, transaction);
 
     const deleteDraftTransaction = () => {
         Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transactionID}`, null);

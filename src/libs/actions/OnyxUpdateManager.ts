@@ -27,6 +27,14 @@ Onyx.connect({
     callback: (value) => (lastUpdateIDAppliedToClient = value),
 });
 
+Onyx.connect({
+  key: 'transactions_1',
+  callback: (value) => {
+    console.log('Here is t1 new value ' + value);
+    console.trace();
+  },
+});
+
 export default () => {
     console.debug('[OnyxUpdateManager] Listening for updates from the server');
     Onyx.connect({
