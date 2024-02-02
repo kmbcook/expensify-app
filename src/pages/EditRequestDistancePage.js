@@ -37,19 +37,25 @@ const propTypes = {
 
     /* Onyx props */
     transaction: transactionPropTypes,
+    draftTransaction: transactionPropTypes,
 
 };
 
 const defaultProps = {
     transaction: {},
+    draftTransaction: {},
 };
 
-function EditRequestDistancePage({report, route, transaction}) {
+function EditRequestDistancePage({report, route, transaction, draftTransaction}) {
     const {isOffline} = useNetwork();
     const {translate} = useLocalize();
 
     const deleteDraftTransaction = () => {
         Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transaction.transactionID}`, null);
+    };
+
+    const updateTransactionFromDraft = () => {
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION}${transaction.transactionID}`, draftTransaction);
     };
 
     const hasWaypointError = useRef(false);
@@ -78,6 +84,7 @@ function EditRequestDistancePage({report, route, transaction}) {
             return;
         }
 
+        updateTransactionFromDraft();
         IOU.updateMoneyRequestDistance(transaction.transactionID, report.reportID, waypoints);
 
         // If the client is offline, then the modal can be closed as well (because there are no errors or other feedback to show them
@@ -115,5 +122,8 @@ EditRequestDistancePage.displayName = 'EditRequestDistancePage';
 export default withOnyx({
     transaction: {
         key: (props) => `${ONYXKEYS.COLLECTION.TRANSACTION}${props.transactionID}`,
+    },
+    draftTransaction: {
+        key: (props) => `${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${props.transactionID}`,
     },
 })(EditRequestDistancePage);
