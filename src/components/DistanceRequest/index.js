@@ -182,7 +182,7 @@ function DistanceRequest({transactionID, report, transaction, route, isEditingRe
             transactionWasSaved.current = true;
         }
 
-        setSubmittingWaypoints(true);
+        //setSubmittingWaypoints(true);
 
         onSubmit(waypoints);
     }, [onSubmit, setHasError, hasRouteError, isLoadingRoute, isLoading, validatedWaypoints, waypoints, isEditingNewRequest, isEditingRequest, isOffline]);

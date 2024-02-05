@@ -50,6 +50,10 @@ function EditRequestDistancePage({report, route, transaction, draftTransaction})
     const {isOffline} = useNetwork();
     const {translate} = useLocalize();
 
+    const setDraftTransaction = () => {
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transaction.transactionID}`, transaction);
+    };
+
     const deleteDraftTransaction = () => {
         Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transaction.transactionID}`, null);
     };
@@ -66,9 +70,13 @@ function EditRequestDistancePage({report, route, transaction, draftTransaction})
 
         // When the loading goes from true to false, then we know the transaction has just been
         // saved to the server. Check for errors. If there are no errors, then the modal can be closed.
-        if (prevIsLoading && !transaction.isLoading && !hasWaypointError.current) {
-            deleteDraftTransaction();
-            Navigation.dismissModal(report.reportID);
+        if (prevIsLoading && !transaction.isLoading) {
+            if (!hasWaypointError.current) {
+                deleteDraftTransaction();
+                Navigation.dismissModal(report.reportID);
+            } else {
+                setDraftTransaction();
+            }
         }
     }, [transaction, prevIsLoading, report]);
 
