@@ -229,15 +229,6 @@ function MoneyRequestView({report, parentReport, parentReportActions, policyCate
     const pendingAction = lodashGet(transaction, 'pendingAction');
     const getPendingFieldAction = (fieldPath) => lodashGet(transaction, fieldPath) || pendingAction;
 
-    const setDraftTransaction = () => {
-        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transaction.transactionID}`, transaction);
-    };
-
-    const editWaypoints = () => {
-        setDraftTransaction();
-        Navigation.navigate(ROUTES.EDIT_REQUEST.getRoute(report.reportID, CONST.EDIT_REQUEST_FIELD.DISTANCE));
-    };
-
     return (
         <View style={[StyleUtils.getReportWelcomeContainerStyle(isSmallScreenWidth)]}>
             <AnimatedEmptyStateBackground />
@@ -318,8 +309,7 @@ function MoneyRequestView({report, parentReport, parentReportActions, policyCate
                             interactive={canEditDistance}
                             shouldShowRightIcon={canEditDistance}
                             titleStyle={styles.flex1}
-                            //onPress={() => Navigation.navigate(ROUTES.EDIT_REQUEST.getRoute(report.reportID, CONST.EDIT_REQUEST_FIELD.DISTANCE))}
-                            onPress={editWaypoints}
+                            onPress={() => Navigation.navigate(ROUTES.EDIT_REQUEST.getRoute(report.reportID, CONST.EDIT_REQUEST_FIELD.DISTANCE))}
                         />
                     </OfflineWithFeedback>
                 ) : (
