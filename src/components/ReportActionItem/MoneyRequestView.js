@@ -1,7 +1,7 @@
 import lodashGet from 'lodash/get';
 import lodashValues from 'lodash/values';
 import PropTypes from 'prop-types';
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {View} from 'react-native';
 import {withOnyx} from 'react-native-onyx';
 import categoryPropTypes from '@components/categoryPropTypes';
@@ -229,6 +229,25 @@ function MoneyRequestView({report, parentReport, parentReportActions, policyCate
     const pendingAction = lodashGet(transaction, 'pendingAction');
     const getPendingFieldAction = (fieldPath) => lodashGet(transaction, fieldPath) || pendingAction;
 
+    const deleteDraftTransaction = () => {
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transaction.transactionID}`, null);
+    };
+
+    const setDraftTransaction = () => {
+        Onyx.set(`${ONYXKEYS.COLLECTION.TRANSACTION_DRAFT}${transaction.transactionID}`, transaction);
+    };
+
+    const editWaypoints = () => {
+        setDraftTransaction();
+        Navigation.navigate(ROUTES.EDIT_REQUEST.getRoute(report.reportID, CONST.EDIT_REQUEST_FIELD.DISTANCE));
+    };
+
+    useEffect(() => {
+        return () => {
+            deleteDraftTransaction();
+        };
+    }, []);
+
     return (
         <View style={[StyleUtils.getReportWelcomeContainerStyle(isSmallScreenWidth)]}>
             <AnimatedEmptyStateBackground />
@@ -309,7 +328,8 @@ function MoneyRequestView({report, parentReport, parentReportActions, policyCate
                             interactive={canEditDistance}
                             shouldShowRightIcon={canEditDistance}
                             titleStyle={styles.flex1}
-                            onPress={() => Navigation.navigate(ROUTES.EDIT_REQUEST.getRoute(report.reportID, CONST.EDIT_REQUEST_FIELD.DISTANCE))}
+                            //onPress={() => Navigation.navigate(ROUTES.EDIT_REQUEST.getRoute(report.reportID, CONST.EDIT_REQUEST_FIELD.DISTANCE))}
+                            onPress={editWaypoints}
                         />
                     </OfflineWithFeedback>
                 ) : (
