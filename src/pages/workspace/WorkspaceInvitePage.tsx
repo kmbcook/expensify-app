@@ -156,7 +156,7 @@ function WorkspaceInvitePage({
         // Strip out dictionary keys and update arrays
         setUsersToInvite(Object.values(newUsersToInviteDict));
         setPersonalDetails(Object.values(newPersonalDetailsDict));
-        setSelectedOptions(Object.values(newSelectedOptionsDict));
+        //setSelectedOptions(Object.values(newSelectedOptionsDict));
 
         // eslint-disable-next-line react-hooks/exhaustive-deps -- we don't want to recalculate when selectedOptions change
     }, [personalDetailsProp, policyMembers, betas, searchTerm, excludedUsers]);
