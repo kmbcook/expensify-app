@@ -25,6 +25,7 @@ function BaseListItem<TItem extends User | RadioItem>({
     onDismissError = () => {},
     rightHandSideComponent,
     keyForList,
+    alwaysBold = true,
 }: BaseListItemProps<TItem>) {
     const theme = useTheme();
     const styles = useThemeStyles();
@@ -44,6 +45,14 @@ function BaseListItem<TItem extends User | RadioItem>({
 
         return rightHandSideComponent;
     };
+
+    const textStyles=[
+        styles.optionDisplayName,
+        isFocused ? styles.sidebarLinkActiveText : styles.sidebarLinkText,
+        styles.pre,
+        item.alternateText ? styles.mb1 : null,
+    ];
+    const textUnreadStyles = alwaysBold || item?.isUnread && item.notificationPreference !== CONST.REPORT.NOTIFICATION_PREFERENCE.MUTE ?          [textStyles, styles.sidebarLinkTextBold] : [textStyles];
 
     return (
         <OfflineWithFeedback
@@ -102,13 +111,7 @@ function BaseListItem<TItem extends User | RadioItem>({
 
                     <ListItem
                         item={item}
-                        textStyles={[
-                            styles.optionDisplayName,
-                            isFocused ? styles.sidebarLinkActiveText : styles.sidebarLinkText,
-                            styles.sidebarLinkTextBold,
-                            styles.pre,
-                            item.alternateText ? styles.mb1 : null,
-                        ]}
+                        textStyles={textUnreadStyles}
                         alternateTextStyles={[styles.textLabelSupporting, styles.lh16, styles.pre]}
                         isDisabled={isDisabled}
                         onSelectRow={() => onSelectRow(item)}

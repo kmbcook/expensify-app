@@ -60,6 +60,7 @@ function BaseSelectionList<TItem extends User | RadioItem>(
         rightHandSideComponent,
         isLoadingNewOptions = false,
         onLayout,
+        alwaysBold = true,
     }: BaseSelectionListProps<TItem>,
     inputRef: ForwardedRef<RNTextInput>,
 ) {
@@ -290,6 +291,7 @@ function BaseSelectionList<TItem extends User | RadioItem>(
                 shouldPreventDefaultFocusOnSelectRow={shouldPreventDefaultFocusOnSelectRow}
                 rightHandSideComponent={rightHandSideComponent}
                 keyForList={item.keyForList}
+                alwaysBold={alwaysBold}
             />
         );
     };
